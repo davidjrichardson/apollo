@@ -8,6 +8,7 @@ DUNNO_HELP_TEXT = """¯\\_(ツ)_/¯"""
 RUST_HELP_TEXT = """And if you gaze long into RUST, the RUST also gazes into you."""
 PR_HELP_TEXT = """You know what to do"""
 BLUESHELL_HELP_TEXT = """!blueshell"""
+BFL_HELP_TEXT = """Didn't we rename this?"""
 
 
 class Misc:
@@ -41,6 +42,10 @@ class Misc:
     @commands.command(help=BLUESHELL_HELP_TEXT, brief=BLUESHELL_HELP_TEXT)
     async def blueshell(self, ctx: Context):
         await ctx.send("<:blueshell:541726526543101973> Thank you RNGesus for the £5 donation! <:blueshell:541726526543101973>")
+    
+    @commands.command(help=BFL_HELP_TEXT, brief=BFL_HELP_TEXT)
+    async def bfl(self, ctx: Context):
+        await ctx.send("What's BFL? I only know Summer LAN.")
 
 
 def setup(bot: Bot):
