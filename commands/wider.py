@@ -21,7 +21,7 @@ WIDE_MAP = dict((i, i + 0xFEE0) for i in range(0x21, 0x7F))
 WIDE_MAP[0x20] = 0x3000
 
 
-def widen(s: str):
+def _widen(s: str):
     return s.translate(WIDE_MAP)
 
 
@@ -40,14 +40,14 @@ class Wider(commands.Cog):
         soup = BeautifulSoup(target_html, 'lxml')
         target = ''.join(soup.findAll(text=True))
 
-        widened = widen(" ".join([x.lstrip('@') for x in target]))
+        widened = _widen(" ".join([x.lstrip('@') for x in target]))
         if len(widened) <= 2000:
             await ctx.send(widened)
         else:
-            await ctx.send(widen("The output is too wide") + "　:frowning:")
+            await ctx.send(" ".join((_widen("The output is too wide"), ":frowning:")))
 
-    @commands.command(help=WIDEN_LONG_HELP_TEXT, brief=WIDEN_SHORT_HELP_TEXT, name="widen")
-    async def _widen(self, ctx: Context, *message: clean_content):
+    @commands.command(help=WIDEN_LONG_HELP_TEXT, brief=WIDEN_SHORT_HELP_TEXT)
+    async def widen(self, ctx: Context, *message: clean_content):
         target_raw = html.escape("".join(message))
 
         # Convert it to HTML and then remove all tags to get the raw text
@@ -56,11 +56,11 @@ class Wider(commands.Cog):
         soup = BeautifulSoup(target_html, 'lxml')
         target = ''.join(soup.findAll(text=True))
 
-        widened = widen(" ".join([x.lstrip('@') for x in target]))
+        widened = _widen(" ".join([x.lstrip('@') for x in target]))
         if len(widened) <= 2000:
             await ctx.send(widened)
         else:
-            await ctx.send(widen("The output is too wide") + "　:frowning:")
+            await ctx.send(" ".join((_widen("The output is too wide"), ":frowning:")))
 
 
 def setup(bot: Bot):
