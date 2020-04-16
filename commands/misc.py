@@ -3,7 +3,9 @@ import random
 from discord.ext import commands
 from discord.ext.commands import Context, Bot
 
+BOYE_HELP_TEXT = """Welcome a new member to the Discord"""
 ZED0_HELP_TEXT = """Very important command."""
+RHIBA_HELP_TEXT = """Hello, Rhiannon."""
 FAUX_HELP_TEXT = """A member of the Rust evangelical strike force."""
 GO_HELP_TEXT = """The eternal #cs meme."""
 DUNNO_HELP_TEXT = """¯\\_(ツ)_/¯"""
@@ -20,9 +22,17 @@ class Misc(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
+    @commands.command(help=BOYE_HELP_TEXT, brief=BOYE_HELP_TEXT)
+    async def boye(self, ctx: Context):
+        await ctx.send("<:WaveBoye:569225157533630475>")
+
     @commands.command(help=ZED0_HELP_TEXT, brief=ZED0_HELP_TEXT)
     async def zed0(self, ctx: Context):
         await ctx.send("¬_¬")
+
+    @commands.command(help=RHIBA_HELP_TEXT, brief=RHIBA_HELP_TEXT)
+    async def rhiba(self, ctx: Context):
+        await ctx.send("hi rhiba")
 
     @commands.command(help=FAUX_HELP_TEXT, brief=FAUX_HELP_TEXT)
     async def faux(self, ctx: Context):
