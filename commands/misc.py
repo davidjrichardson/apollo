@@ -13,6 +13,7 @@ ISSUE_HELP_TEXT = """You know what you want someone else to do"""
 BLUESHELL_HELP_TEXT = """!blueshell"""
 AWOO_HELP_TEXT = """Tails and that"""
 SINJO_HELP_TEXT = """o-o"""
+SAMFACTS_HELP_TEXT = """Posts a random fact about Sam"""
 
 
 class Misc(commands.Cog):
@@ -60,6 +61,10 @@ class Misc(commands.Cog):
     @commands.command(help=SINJO_HELP_TEXT, brief=SINJO_HELP_TEXT)
     async def sinjo(self, ctx: Context):
         await ctx.send(":neutral_face:")
+
+    @commands.command(help=SAMFACTS_HELP_TEXT, brief=SAMFACTS_HELP_TEXT)
+    async def samfacts(self, ctx: Context):
+        await ctx.send("Sam is a weeb.")
 
 
 def setup(bot: Bot):
