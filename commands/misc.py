@@ -71,5 +71,6 @@ class Misc(commands.Cog):
     async def mgp(self, ctx: Context):
         await ctx.send("#3D3051")
 
+
 def setup(bot: Bot):
     bot.add_cog(Misc(bot))
