@@ -14,7 +14,6 @@ BLUESHELL_HELP_TEXT = """!blueshell"""
 AWOO_HELP_TEXT = """Tails and that"""
 SINJO_HELP_TEXT = """o-o"""
 TANKSKI_HELP_TEXT = """HONK"""
-RHIBA_HELP_TEXT = """Hi Rhiba!"""
 MGP_HELP_TEXT = """The perfect colour."""
 
 
@@ -67,10 +66,6 @@ class Misc(commands.Cog):
     @commands.command(help=TANKSKI_HELP_TEXT, brief=TANKSKI_HELP_TEXT)
     async def tankski(self, ctx: Context):
         await ctx.send(":goose:")
-
-    @commands.command(help=RHIBA_HELP_TEXT, brief=RHIBA_HELP_TEXT)
-    async def rhiba(self, ctx: Context):
-        await ctx.send(r"\o/")
 
     @commands.command(help=MGP_HELP_TEXT, brief=MGP_HELP_TEXT)
     async def mgp(self, ctx: Context):
