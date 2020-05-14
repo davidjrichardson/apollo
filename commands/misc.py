@@ -3,9 +3,7 @@ import random
 from discord.ext import commands
 from discord.ext.commands import Context, Bot
 
-BOYE_HELP_TEXT = """Welcome a new member to the Discord"""
 ZED0_HELP_TEXT = """Very important command."""
-RHIBA_HELP_TEXT = """Hello, Rhiannon."""
 FAUX_HELP_TEXT = """A member of the Rust evangelical strike force."""
 GO_HELP_TEXT = """The eternal #cs meme."""
 DUNNO_HELP_TEXT = """¯\\_(ツ)_/¯"""
@@ -15,24 +13,16 @@ ISSUE_HELP_TEXT = """You know what you want someone else to do"""
 BLUESHELL_HELP_TEXT = """!blueshell"""
 AWOO_HELP_TEXT = """Tails and that"""
 SINJO_HELP_TEXT = """o-o"""
-SAMFACTS_HELP_TEXT = """Posts a random fact about Sam"""
+REPORT_HELP_TEXT = """You fool. You absolute idiot."""
 
 
 class Misc(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
-    @commands.command(help=BOYE_HELP_TEXT, brief=BOYE_HELP_TEXT)
-    async def boye(self, ctx: Context):
-        await ctx.send("<:WaveBoye:569225157533630475>")
-
     @commands.command(help=ZED0_HELP_TEXT, brief=ZED0_HELP_TEXT)
     async def zed0(self, ctx: Context):
         await ctx.send("¬_¬")
-
-    @commands.command(help=RHIBA_HELP_TEXT, brief=RHIBA_HELP_TEXT)
-    async def rhiba(self, ctx: Context):
-        await ctx.send("hi rhiba")
 
     @commands.command(help=FAUX_HELP_TEXT, brief=FAUX_HELP_TEXT)
     async def faux(self, ctx: Context):
@@ -72,9 +62,9 @@ class Misc(commands.Cog):
     async def sinjo(self, ctx: Context):
         await ctx.send(":neutral_face:")
 
-    @commands.command(help=SAMFACTS_HELP_TEXT, brief=SAMFACTS_HELP_TEXT)
-    async def samfacts(self, ctx: Context):
-        await ctx.send("Sam is a weeb.")
+    @commands.command(help=REPORT_HELP_TEXT, brief=REPORT_HELP_TEXT)
+    async def report(self, ctx: Context):
+        await ctx.send("https://www.theonion.com/report-you-know-you-are-a-fucking-idiot-right-1819572768")
 
 
 def setup(bot: Bot):
