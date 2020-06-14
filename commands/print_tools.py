@@ -2,9 +2,12 @@ import configparser
 import os
 import re
 import shutil
+from math import floor
 from pathlib import Path
 
 import requests
+from PIL import Image
+from colorthief import ColorThief
 from discord import Color, Embed
 from discord.ext import commands
 from discord.ext.commands import Context, Bot, clean_content
@@ -12,7 +15,6 @@ from discord.ext.commands import Context, Bot, clean_content
 from commands.admin import is_compsoc_exec_in_guild
 from config import CONFIG
 from models import db_session, FilamentType
-from utils.aliases import get_name_string
 
 LONG_HELP_TEXT = """
 Commands to help cost and request something is 3D printed on the UWCS 3D printer.
@@ -45,6 +47,10 @@ def get_valid_filename(s):
     return re.sub(r"(?u)[^-\w.]", "", s)
 
 
+def pluralise(items, one, many):
+    return many if len(items) > 1 else one
+
+
 class PrintTools(commands.Cog, name="Print tools"):
     def __init__(self, bot: Bot):
         self.print_root_dir = Path(CONFIG["PRINTER_FILE_ROOT"])
@@ -68,6 +74,7 @@ class PrintTools(commands.Cog, name="Print tools"):
     @printtools.command(help=ADDF_LONG_TEXT, brief=ADDF_HELP_TEXT)
     @is_compsoc_exec_in_guild()
     async def add_filament(self, ctx: Context, *args: clean_content):
+        await ctx.trigger_typing()
         # Check we have the bare minumum number of args
         if len(args) < 2:
             await ctx.send(
@@ -91,17 +98,23 @@ class PrintTools(commands.Cog, name="Print tools"):
                 f'Print profile "{filament_profile}" is not a valid profile. Currently accepted profiles are: `filamentum`, `prusament`.'
             )
 
-        image_file = Path(self.print_images_dir, get_valid_filename(filament_name))
-
         # Get the image and save it to the filesystem
         if ctx.message.attachments:
             # Take the first attachment and save it
             image_attachment = ctx.message.attachments[0]
-            filename = str(image_file) + "." + image_attachment.filename.split(".")[-1]
+            extension = f'.{image_attachment.filename.split(".")[-1]}'
+            image_file = Path(
+                self.print_images_dir, get_valid_filename(filament_name) + extension
+            )
+            filename = str(image_file)
             await image_attachment.save(filename)
         else:
             image_url = args[2]
-            filename = str(image_file) + "." + str(image_url).split(".")[-1]
+            extension = f'.{str(image_url).split(".")[-1]}'
+            image_file = Path(
+                self.print_images_dir, get_valid_filename(filament_name) + extension
+            )
+            filename = str(image_file)
             # Save the file to disk
             r = requests.get(image_url, stream=True)
             if r.status_code == 200:
@@ -109,9 +122,15 @@ class PrintTools(commands.Cog, name="Print tools"):
                     r.raw.decode_content = True
                     shutil.copyfileobj(r.raw, f)
 
+        # Resize the image to 256w
+        image = Image.open(image_file)
+        image_dims = (256, floor(256 * (image.height / image.width)))
+        resized = image.resize(image_dims)
+        resized.save(image_file)
+
         # Save the model to the database
         filament = FilamentType(
-            name=str(filament_name),
+            name=str(filament_name).lstrip("@"),
             profile=str(filament_profile).lower(),
             image_path=str(image_file),
         )
@@ -134,6 +153,7 @@ class PrintTools(commands.Cog, name="Print tools"):
             )
             return
 
+        os.remove(Path(filament.image_path))
         db_session.delete(filament)
         db_session.commit()
 
@@ -142,7 +162,6 @@ class PrintTools(commands.Cog, name="Print tools"):
     @printtools.command(name="list", help=LIST_HELP_TEXT, brief=LIST_HELP_TEXT)
     async def list_filament(self, ctx: Context, *filter: clean_content):
         # If there is a search filter then use it
-        # TODO: Use the embeds for this
         if filter:
             filter_str = str(filter[0])
             filaments = (
@@ -152,12 +171,21 @@ class PrintTools(commands.Cog, name="Print tools"):
                 .all()
             )
         else:
+            filter_str = None
             filaments = db_session.query(FilamentType).order_by(FilamentType.name).all()
 
         if filaments:
-            filament_list = []
+            # Repeat the input filter if there was one
+            if filter_str:
+                start_msg = f'{len(filaments)} {pluralise(filaments, "filament", "filaments")} {pluralise(filaments, "is", "are")} available to use matching the filter "{filter_str}":'
+            else:
+                start_msg = f'{len(filaments)} {pluralise(filaments, "filament", "filaments")} {pluralise(filaments, "is", "are")} available to use:'
+
+            await ctx.send(start_msg)
+            # Iterate over the results
             for f in filaments:
-                # Format the list nicely
+                await ctx.trigger_typing()
+                # Load the profile from disc to get the cost/kg
                 config = configparser.ConfigParser()
                 if self.print_profiles.get(f"uwcs_balanced_{f.profile}.ini", None):
                     config.read_file(
@@ -166,51 +194,29 @@ class PrintTools(commands.Cog, name="Print tools"):
                             "r",
                         )
                     )
-                    cost = f"- £{config.get('cfg', 'filament_cost')}/kg"
+                    cost = f"£{config.get('cfg', 'filament_cost')}/kg"
                 else:
-                    cost = "- Unknown cost"
+                    cost = "Unknown cost"
 
-                filament_list.append(f" • **{f.name}** {cost}")
-
-            filament_list = '\n'.join(filament_list)
-            if len(filaments) > 1:
-                await ctx.send(f"Our current filaments:\n{filament_list}")
-            else:
-                await ctx.send(f"Our current filament:\n{filament_list}")
+                # Get the dominant colour of the filament image for the embed
+                thief = ColorThief(Path(f.image_path))
+                embed_colour = Color.from_rgb(*thief.get_color(quality=1))
+                embed_title = f.name
+                embed = Embed(title=embed_title, color=embed_colour)
+                embed.add_field(name="Cost", value=cost)
+                embed.set_image(
+                    url="{host}/{filename}".format(
+                        host=CONFIG["FIG_HOST_URL"], filename=f.image_path
+                    )
+                )
+                await ctx.send("", embed=embed)
         else:
             if filter:
                 await ctx.send(f'There are no filaments that match "{str(filter[0])}"')
             else:
                 await ctx.send("There are no filaments currently available")
 
-    @printtools.command(help=INFO_HELP_TEXT, brief=INFO_HELP_TEXT)
-    async def info(self, ctx: Context, filament_name: clean_content):
-        filament = (
-            db_session.query(FilamentType)
-            .filter(FilamentType.name.like(filament_name))
-            .first()
-        )
-
-        if not filament:
-            await ctx.send(
-                f'Couldn\'t find a filament that matches the name "{filament_name}"'
-            )
-            return
-
-        # Construct the embed
-        embed_colour = Color.from_rgb(61, 83, 255)
-        embed_title = f'Filament info for "{filament_name}"'
-        host = CONFIG["FIG_HOST_URL"] + "/filaments"
-        image_file = filament.image_path.split("/")[-1]
-
-        embed = Embed(title=embed_title, color=embed_colour)
-        embed.add_field(name="Cost per kilogram", value="{0:.2f}".format(filament.cost))
-        embed.set_image(url=f"{host}/{image_file}")
-
-        display_name = get_name_string(ctx.message)
-        await ctx.send(f"Here you go, {display_name}! :page_facing_up:", embed=embed)
-
-    @printtools.command(help=COST_HELP_TEXT, brief=COST_HELP_TEXT)
+    # @printtools.command(help=COST_HELP_TEXT, brief=COST_HELP_TEXT)
     async def cost(self, ctx: Context, filament: clean_content):
         msg = ctx.message
 
