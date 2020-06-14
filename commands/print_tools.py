@@ -124,7 +124,7 @@ class PrintTools(commands.Cog, name="Print tools"):
 
         # Resize the image to 256w
         image = Image.open(image_file)
-        image_dims = (256, floor(256 * (image.height / image.width)))
+        image_dims = (512, floor(512 * (image.height / image.width)))
         resized = image.resize(image_dims)
         resized.save(image_file)
 
@@ -204,9 +204,10 @@ class PrintTools(commands.Cog, name="Print tools"):
                 embed_title = f.name
                 embed = Embed(title=embed_title, color=embed_colour)
                 embed.add_field(name="Cost", value=cost)
+                image_file = f.image_path.split("/")[-1]
                 embed.set_image(
-                    url="{host}/printer/{filename}".format(
-                        host=CONFIG["HOST_URL"], filename=f.image_path
+                    url="{host}/printer/images/{filename}".format(
+                        host=CONFIG["HOST_URL"], filename=image_file
                     )
                 )
                 await ctx.send("", embed=embed)
