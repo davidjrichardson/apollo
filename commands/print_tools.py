@@ -205,8 +205,8 @@ class PrintTools(commands.Cog, name="Print tools"):
                 embed = Embed(title=embed_title, color=embed_colour)
                 embed.add_field(name="Cost", value=cost)
                 embed.set_image(
-                    url="{host}/{filename}".format(
-                        host=CONFIG["FIG_HOST_URL"], filename=f.image_path
+                    url="{host}/printer/{filename}".format(
+                        host=CONFIG["HOST_URL"], filename=f.image_path
                     )
                 )
                 await ctx.send("", embed=embed)

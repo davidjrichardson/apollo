@@ -355,8 +355,8 @@ class Karma(commands.Cog):
                 text=f"Statistics generated at {generated_at} in {time_taken:.3f} seconds."
             )
             embed.set_image(
-                url="{host}/{filename}".format(
-                    host=CONFIG["FIG_HOST_URL"], filename=filename
+                url="{host}/graphs/{filename}".format(
+                    host=CONFIG["HOST_URL"], filename=filename
                 )
             )
 
