@@ -87,6 +87,7 @@ class PrintTools(commands.Cog, name="Print tools"):
             await ctx.send(
                 "Please provide an image of the filament by an image link or attachment"
             )
+            return
 
         # Do a quick check the folder(s) exist and make them if not
         self.print_images_dir.mkdir(parents=True, exist_ok=True)
@@ -199,6 +200,7 @@ class PrintTools(commands.Cog, name="Print tools"):
                     cost = "Unknown cost"
 
                 # Get the dominant colour of the filament image for the embed
+                # TODO: Cache this in memory for future use
                 thief = ColorThief(Path(f.image_path))
                 embed_colour = Color.from_rgb(*thief.get_color(quality=1))
                 embed_title = f.name
