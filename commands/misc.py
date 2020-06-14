@@ -13,6 +13,7 @@ ISSUE_HELP_TEXT = """You know what you want someone else to do"""
 BLUESHELL_HELP_TEXT = """!blueshell"""
 AWOO_HELP_TEXT = """Tails and that"""
 SINJO_HELP_TEXT = """o-o"""
+REPORT_HELP_TEXT = """You fool. You absolute idiot."""
 
 
 class Misc(commands.Cog):
@@ -60,6 +61,10 @@ class Misc(commands.Cog):
     @commands.command(help=SINJO_HELP_TEXT, brief=SINJO_HELP_TEXT)
     async def sinjo(self, ctx: Context):
         await ctx.send(":neutral_face:")
+
+    @commands.command(help=REPORT_HELP_TEXT, brief=REPORT_HELP_TEXT)
+    async def report(self, ctx: Context):
+        await ctx.send("https://www.theonion.com/report-you-know-you-are-a-fucking-idiot-right-1819572768")
 
 
 def setup(bot: Bot):
