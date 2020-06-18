@@ -13,6 +13,8 @@ ISSUE_HELP_TEXT = """You know what you want someone else to do"""
 BLUESHELL_HELP_TEXT = """!blueshell"""
 AWOO_HELP_TEXT = """Tails and that"""
 SINJO_HELP_TEXT = """o-o"""
+TANKSKI_HELP_TEXT = """HONK"""
+MGP_HELP_TEXT = """The perfect colour."""
 
 
 class Misc(commands.Cog):
@@ -60,6 +62,14 @@ class Misc(commands.Cog):
     @commands.command(help=SINJO_HELP_TEXT, brief=SINJO_HELP_TEXT)
     async def sinjo(self, ctx: Context):
         await ctx.send(":neutral_face:")
+
+    @commands.command(help=TANKSKI_HELP_TEXT, brief=TANKSKI_HELP_TEXT)
+    async def tankski(self, ctx: Context):
+        await ctx.send(":goose:")
+
+    @commands.command(help=MGP_HELP_TEXT, brief=MGP_HELP_TEXT)
+    async def mgp(self, ctx: Context):
+        await ctx.send("#3D3051")
 
 
 def setup(bot: Bot):
